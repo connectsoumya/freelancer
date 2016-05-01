@@ -32,15 +32,17 @@ class Tracker():
         """
         self.read_file()
         self.extract_words()
-        self.variable = 'resid'
-        self.line = 31
-        self.firstline = 31
+        # self.variable = 'resid'
+        # self.line = 31
+        # self.firstline = 31
+        # self.steps = 4
+        self.user_input()
         self.present_inputs = {self.line : self.variable}
-        self.steps = 3
-        print '---------------------------------RESULTS------------------------------------'
-        for i in xrange(0, self.steps):
+        print '=================================RESULTS================================='
+        for i in xrange(1, self.steps+1):
             self.backtrack()
-        print '----------------------------------------------------------------------------'
+            print '\n--------------------STEP ', i, ' COMPLETED---------------------------\n'
+        print '========================================================================'
     def passcode(self):
         code = ''.join(random.SystemRandom().choice(string.digits) for _ in range(4))
         print 'Random Code = ', code
@@ -67,6 +69,7 @@ class Tracker():
         raw_input('Press Enter to select the matlab file.')
         Tk().withdraw()
         filename = askopenfilename()
+        print filename
         line_no = 1
         self.dict_lines = {}
         for line in open(filename):
@@ -98,6 +101,9 @@ class Tracker():
         steps = raw_input('Please enter the number of steps >>>')
         self.steps = int(steps)
         self.present_inputs = {self.line : self.variable}
+        self.mfile = raw_input('This line is within a function. Which m-file calls this function? >>>')
+
+        self.mfile_line = raw_input('At which line does it call the function? >>>')
 
     def extract_variables_only(self):
         """
@@ -143,7 +149,6 @@ class Tracker():
         self.extract_variables_only()
         present_variable = deepcopy(self.only_vars)
         self.updated_input = {}
-        caught = False
         for var in self.only_vars:
             if var == self.variable:
                 present_variable.remove(var)
@@ -153,18 +158,24 @@ class Tracker():
                 try:
                     prev_line = self.dict_variables[line_no]  # prev_line is a list
                     prev_line = self.varonly(prev_line)
+
                     # logging.debug(prev_line)
                     if prev_line[0] == var:
-                        caught = True
                         print 'Variable ', var, ' in line ', line_no
                         self.updated_input[line_no] = var
                         break
+                    elif self.dict_variables[line_no][0] == 'function':
+                        for fn_arg in prev_line:
+                            if fn_arg == var:
+                                print 'Variable ', var, ' in line ', line_no
+                                self.updated_input[line_no] = var
+                                break
                 except:
                     continue
-            if not caught:
-                if self.infunction():
-                    self.mfile = raw_input('This line is within a function. Which m-file calls this function? >>>')
-                    self.mfile_line = raw_input('At which line does it call the function? >>>')
+            # if not caught:
+            #     if self.infunction():
+            #         self.mfile = raw_input('This line is within a function. Which m-file calls this function? >>>')
+            #         self.mfile_line = raw_input('At which line does it call the function? >>>')
 
     def backtrack(self):
         """
@@ -249,5 +260,21 @@ class Tracker():
 
 if __name__ == '__main__':
     t = Tracker()
-    if time.time() < 1462198992:
+    if time.time() < 1462158992:
         t.main()
+    else:
+        print 'File expired. Follow the instructions below:'
+        t.passcode()
+        i = 0
+        while i < 10:
+            print '*****************************************'
+            print '*                                       *'
+            print '*            ', 10-i, ' trials left             *'
+            print '*                                       *'
+            print '*****************************************'
+            t.read_file()
+            t.extract_words()
+            t.user_input()
+            t.backtrack()
+            i = i + 1
+            raw_input('Press enter to try again...')
