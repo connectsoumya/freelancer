@@ -279,3 +279,22 @@ if __name__ == '__main__':
             i = i + 1
             raw_input('Press enter to try again...')
 
+    # def varonly(self, _list):
+    #     """
+    #     Extracts just the variables from _list.
+    #     :param _list: A list.
+    #     :return:
+    #     """
+    #     only_vars = deepcopy(_list)
+    #     for var in _list:
+    #         for command in self.commands:
+    #             if var == command:
+    #                 only_vars.remove(var)
+    #     print only_vars
+    #     return only_vars
+
+
+        # self.commands = []
+        # for line in open('command.txt'):
+        #     lines = line.rstrip('\n')
+        #     self.commands.append(lines)

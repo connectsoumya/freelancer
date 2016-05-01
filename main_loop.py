@@ -32,11 +32,11 @@ class Tracker():
         """
         self.read_file()
         self.extract_words()
-        # self.variable = 'resid'
-        # self.line = 31
-        # self.firstline = 31
-        # self.steps = 4
-        self.user_input()
+        self.variable = 'resid'
+        self.line = 32
+        self.firstline = 32
+        self.steps = 4
+        # self.user_input()
         self.present_inputs = {self.line : self.variable}
         print '=================================RESULTS================================='
         for i in xrange(1, self.steps+1):
@@ -77,6 +77,10 @@ class Tracker():
             if re.search('\A((\s+\%)|(\%))', lines) is None:
                 self.dict_lines[line_no] = lines
             line_no += 1
+        self.commands = []
+        for line in open('command.txt'):
+            lines = line.rstrip('\n')
+            self.commands.append(lines)
 
     def extract_words(self):
         """
@@ -110,6 +114,7 @@ class Tracker():
         This method extracts only the variables present in line self.line.
         :return: Saves a list of variables. (Returns none)
         """
+
         try:
             _list = self.dict_variables[self.line]
         except KeyError:
@@ -144,6 +149,7 @@ class Tracker():
                         self.only_vars.append(var)
             except IndexError:
                 continue
+
 
     def get_updated_input(self):
         self.extract_variables_only()
@@ -225,8 +231,7 @@ class Tracker():
                 del _list[idx:]
         return _list
 
-    @staticmethod
-    def varonly(_list):
+    def varonly(self, _list):
         """
         Extracts just the variables from _list.
         :param _list: A list.
@@ -239,15 +244,17 @@ class Tracker():
                 next_char = _list[var_idx + 1]
                 if next_char[0] == '(':
                     if re.match('([a-z]+)', var) is not None:
-                        if re.match('([a-z]+)', var).group(0) == var:
-                            pass
+                        for command in self.commands:
+                            if command == var:
+                                pass
                     else:
                         if any(c.isalpha() for c in var):
                             only_vars.append(var)
                 elif next_char[0] == ' ' and next_char[1] == '(':
                     if re.match('([a-z]+)', var) is not None:
-                        if re.match('([a-z]+)', var).group(0) == var:
-                            pass
+                        for command in self.commands:
+                            if command == var:
+                                pass
                     else:
                         if any(c.isalpha() for c in var):
                             only_vars.append(var)
@@ -258,9 +265,25 @@ class Tracker():
                 continue
         return only_vars
 
+    # def varonly(self, _list):
+    #     """
+    #     Extracts just the variables from _list.
+    #     :param _list: A list.
+    #     :return:
+    #     """
+    #     only_vars = deepcopy(_list)
+    #     for var in _list:
+    #         for command in self.commands:
+    #             if var == command:
+    #                 only_vars.remove(var)
+    #         if not any(c.isalpha() for c in var):
+    #             only_vars.remove(var)
+    #     # print only_vars
+    #     return only_vars
+
 if __name__ == '__main__':
     t = Tracker()
-    if time.time() < 1462158992:
+    if time.time() < 1462159992:
         t.main()
     else:
         print 'File expired. Follow the instructions below:'
