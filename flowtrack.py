@@ -1,6 +1,12 @@
 import re
 import os
 from fnmatch import fnmatch
+import logging
+import logging.config
+
+logging.config.fileConfig('logging.ini')
+LOG_FILENAME = 'example.log'
+logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 
 class Flowtrack(object):
     def __init__(self):
@@ -61,7 +67,10 @@ class Flowtrack(object):
                 if bool(self.findWholeWord(funcI)(lineI)):
                     #check for variables getting updated in func
                     variablesI = self.checkVariables(funcI)
-                    self.result.write(self.indentation+namefileI+'\t'+str(indexI)+'\t'+funcI+'\t'+variablesI+'\n')
+                    try:
+                        self.result.write(self.indentation+namefileI+'\t'+str(indexI)+'\t'+funcI+'\t'+variablesI+'\n')
+                    except:
+                        logging.error('Couldn\'t pass this. ' + str(indexI))
                     self.checkFunctions(funcI)
             self.indentation = self.indentation[:-1]
 
@@ -70,11 +79,13 @@ class Flowtrack(object):
         # start = raw_input("Please enter starting file name:")
         # ignore = raw_input("Please enter a folder you want to ignore (if any):")
         start = raw_input("This line is within a function. Which m-file calls this function?"
-                          "If the name of the file is 'example.m', write 'example' >>>")
+                          "Press Enter to select the file' >>>")
+        logging.debug(start)
         ignore = ''
-
+        # start = 'SolveForEqm'
         #get the m files
-        root = 'folders/'
+        # root = 'folders/'
+        root = os.getcwd()
         pattern = "*.m"
         self.mylist = []
         self.mylistwithpath = []
@@ -91,9 +102,13 @@ class Flowtrack(object):
 
         #open the file where we should start
         startfile = self.mylistwithpath[self.mylist.index(start)]
+        logging.debug(startfile)
         file = open(startfile, 'r')
         #create the results file
-        result = open(start+'-result.txt','w')
+        try:
+            result = open(start+'-result.txt','w')
+        except:
+            logging.error('Tried creating result file but failed. Corresponding start=' + str(start))
         result.write('file\tline\tcalls\tvariables modified\n')
 
         #read the file line by line and check for *.m files, functions, variables
@@ -125,4 +140,5 @@ class Flowtrack(object):
 
 if __name__ == '__main__':
     f = Flowtrack()
-    f.main_method()
+    s = f.main_method()
+    print s
